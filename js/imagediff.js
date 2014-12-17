@@ -30,9 +30,9 @@
   // Creation
   function getCanvas (width, height) {
     var canvas;
-    if (Canvas) {
+    if (typeof Canvas === 'function') {
       canvas = new Canvas();
-    } else if (root.document && root.document.createElement) {
+    } else if (document && document.createElement) {
       canvas = document.createElement('canvas');
     } else {
         throw new Error(
@@ -187,10 +187,22 @@
       i, j, k, v;
 
     for (i = 0; i < length; i += 4) {
-      cData[i] = Math.abs(aData[i] - bData[i]);
-      cData[i+1] = Math.abs(aData[i+1] - bData[i+1]);
-      cData[i+2] = Math.abs(aData[i+2] - bData[i+2]);
-      cData[i+3] = Math.abs(255 - Math.abs(aData[i+3] - bData[i+3]));
+      if (
+        aData[i] === bData[i] &&
+        aData[i+1] === bData[i+1] &&
+        aData[i+2] === bData[i+2] &&
+        aData[i+3] === bData[i+3]
+      ) {
+        cData[i] = 0;
+        cData[i+1] = 0;
+        cData[i+2] = 0;
+        cData[i+3] = 255;
+      } else {
+        cData[i] = 255;
+        cData[i+1] = 255;
+        cData[i+2] = 255;
+        cData[i+3] = 255;
+      }
     }
 
     return c;
@@ -234,9 +246,20 @@
       for (column = b.width; column--;) {
         i = 4 * ((row + rowOffset) * width + (column + columnOffset));
         j = 4 * (row * b.width + column);
-        cData[i+0] = Math.abs(cData[i+0] - bData[j+0]); // r
-        cData[i+1] = Math.abs(cData[i+1] - bData[j+1]); // g
-        cData[i+2] = Math.abs(cData[i+2] - bData[j+2]); // b
+
+        if (
+          aData[i+0] === bData[j+0] &&
+          aData[i+1] === bData[j+1] &&
+          aData[i+2] === bData[j+2]
+        ) {
+          cData[i+0] = 0;
+          cData[i+1] = 0;
+          cData[i+2] = 0;
+        } else {
+          cData[i] = 255;
+          cData[i+1] = 255;
+          cData[i+2] = 255;
+        }
       }
     }
 
@@ -340,7 +363,7 @@
 
     base64Data = canvas.toDataURL().replace(/^data:image\/\w+;base64,/,"");
     decodedImage = new Buffer(base64Data, 'base64');
-    require('fs').writeFile(outputFile, decodedImage, callback);
+    // require('fs').writeFile(outputFile, decodedImage, callback);
   }
 
 
